@@ -118,11 +118,11 @@ void ApiService::handleStationsReply(QNetworkReply* reply, const QString& cityFi
 
         station.addressStreet = obj["addressStreet"].toString().toStdString();
 
-        // 🔍 filtrujemy po nazwie miasta (jeśli coś wpisano)
+        // 🔍 filtrujemy po nazwie miasta
         if (!filterLower.isEmpty()) {
             const QString stationCity = QString::fromStdString(station.city.name).toLower();
             if (!stationCity.contains(filterLower))
-                continue; // pomiń jeśli nie pasuje
+                continue;
         }
 
         stations.push_back(station);
