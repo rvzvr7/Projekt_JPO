@@ -1,0 +1,10 @@
+debug/dataanalysis.o
+debug/apiservice.o
+debug/chartwidget.o
+debug/database.o
+debug/logger.o
+debug/main.o
+debug/mainwindow.o
+debug/moc_apiservice.o
+debug/moc_chartwidget.o
+debug/moc_mainwindow.o

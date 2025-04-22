@@ -1,0 +1,10 @@
+release/dataanalysis.o
+release/apiservice.o
+release/chartwidget.o
+release/database.o
+release/logger.o
+release/main.o
+release/mainwindow.o
+release/moc_apiservice.o
+release/moc_chartwidget.o
+release/moc_mainwindow.o
