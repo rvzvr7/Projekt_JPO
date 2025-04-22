@@ -48,7 +48,7 @@ void MainWindow::setupUi() {
     searchStationEdit = new QLineEdit();
     searchStationEdit->setPlaceholderText("Wyszukaj stację po nazwie miasta...");
     searchButton = new QPushButton("Szukaj");
-    QPushButton* showMapButton = new QPushButton("Szukaj stacji w pobliżu");
+    showMapButton = new QPushButton("Szukaj stacji w pobliżu");
     searchLayout->addWidget(searchStationEdit);
     searchLayout->addWidget(searchButton);
     searchLayout->addWidget(showMapButton);
@@ -214,7 +214,8 @@ void MainWindow::setupUi() {
 
 void MainWindow::createConnections() {
     // Strona stacji
-    connect(searchButton, &QPushButton::clicked, this, &MainWindow::filterStations);
+    connect(showMapButton, &QPushButton::clicked, this, &MainWindow::showMap);
+    connect(searchLocationButton, &QPushButton::clicked, this, &MainWindow::searchNearbyStations);
     connect(stationsTable, &QTableWidget::cellDoubleClicked, [this](int row, int) {
         int stationId = stationsTable->item(row, 0)->text().toInt();
         showStationDetails(stationId);
@@ -482,12 +483,69 @@ void MainWindow::searchNearbyStations() {
         return;
     }
 
-    // Symulacja wyszukiwania – do zaimplementowania geokodowania
-    mapLabel->setText("Mapa zostanie wyświetlona po zaimplementowaniu usługi geokodowania.\n\n"
-                      "Szukamy stacji w promieniu " + QString::number(radius) +
-                      " km od lokalizacji: " + location);
+    auto [latUser, lonUser] = mockGeocode(location);
 
-    stackedWidget->setCurrentWidget(mapPage);
+    QThread* worker = new QThread();
+    ApiService* apiWorker = new ApiService();
+    apiWorker->moveToThread(worker);
+
+    connect(worker, &QThread::started, [apiWorker]() {
+        apiWorker->fetchStations();
+    });
+
+    connect(apiWorker, &ApiService::stationsLoaded, this,
+            [this, worker, latUser, lonUser, radius](const std::vector<Station>& allStations) {
+                std::vector<Station> nearby;
+
+                for (const auto& station : allStations) {
+                    double lat = std::stod(station.gegrLat);
+                    double lon = std::stod(station.gegrLon);
+                    double dist = distanceKm(latUser, lonUser, lat, lon);
+                    if (dist <= radius)
+                        nearby.push_back(station);
+                }
+
+                displayStations(nearby);
+                stackedWidget->setCurrentWidget(stationsPage);
+                worker->quit();
+            });
+
+    connect(apiWorker, &ApiService::errorOccurred, this,
+            [this, worker](const QString& err) {
+                handleApiError(err);
+                worker->quit();
+            });
+
+    connect(worker, &QThread::finished, worker, &QThread::deleteLater);
+    connect(worker, &QThread::finished, apiWorker, &ApiService::deleteLater);
+
+    worker->start();
+}
+
+// ↓ MOCK – przypisujemy fikcyjne współrzędne do adresu
+std::pair<double, double> MainWindow::mockGeocode(const QString& address) {
+    if (address.contains("Poznań", Qt::CaseInsensitive))
+        return {52.4064, 16.9252};  // Poznań
+    if (address.contains("Warszawa", Qt::CaseInsensitive))
+        return {52.2297, 21.0122};  // Warszawa
+    if (address.contains("Kraków", Qt::CaseInsensitive))
+        return {50.0647, 19.9450};  // Kraków
+    return {52.0, 20.0};           // domyślny punkt w Polsce
+}
+
+// ↓ Wzór Haversine’a – liczy odległość w km
+double MainWindow::distanceKm(double lat1, double lon1, double lat2, double lon2) {
+    constexpr double R = 6371.0; // promień Ziemi (km)
+    double dLat = qDegreesToRadians(lat2 - lat1);
+    double dLon = qDegreesToRadians(lon2 - lon1);
+
+    lat1 = qDegreesToRadians(lat1);
+    lat2 = qDegreesToRadians(lat2);
+
+    double a = pow(sin(dLat / 2), 2) +
+               pow(sin(dLon / 2), 2) * cos(lat1) * cos(lat2);
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    return R * c;
 }
 
 void MainWindow::showMap() {
