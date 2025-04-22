@@ -56,6 +56,8 @@ private:
     void updateChart(const std::vector<Measurement>& measurements);
     void handleApiError(const QString& errorMessage);
     void displayMessage(const QString& message);
+    std::pair<double, double> mockGeocode(const QString& address);
+    double distanceKm(double lat1, double lon1, double lat2, double lon2);
 
     // Interfejs użytkownika
     QStackedWidget* stackedWidget;
@@ -67,6 +69,7 @@ private:
     QPushButton* searchButton;
     QTableWidget* stationsTable;
     QProgressBar* loadingBar;
+    QPushButton* showMapButton;
 
     // Strona szczegółów stacji
     QWidget* stationDetailsPage;
