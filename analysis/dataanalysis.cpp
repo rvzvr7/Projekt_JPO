@@ -20,7 +20,7 @@ AnalysisResult DataAnalysis::analyze(const std::vector<Measurement>& measurement
             if (m.value.has_value()) {
                 validMeasurements.push_back(m);
             }
-        } //sdgdgsdgsdgsgds
+        }
 
         if (validMeasurements.empty()) {
             return result;
