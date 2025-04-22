@@ -33,7 +33,7 @@ signals:
     void errorOccurred(const QString& errorMessage);
 
 private:
-    void handleStationsReply(QNetworkReply* reply);
+    void handleStationsReply(QNetworkReply* reply, const QString& cityFilter);
     void handleSensorsReply(QNetworkReply* reply, int stationId);
     void handleMeasurementsReply(QNetworkReply* reply, int sensorId, const QDate& startDate, const QDate& endDate);
     void handleAirQualityIndexReply(QNetworkReply* reply);
