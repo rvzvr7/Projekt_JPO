@@ -26,7 +26,7 @@ void ApiService::fetchStations(const QString& cityFilter) {
 
     connect(reply, &QNetworkReply::finished, this, [this, reply, cityFilter]() {
         if (reply->error() == QNetworkReply::NoError) {
-            handleStationsReply(reply);
+            handleStationsReply(reply, cityFilter);  // ← przekazujemy filtr
         } else {
             emit errorOccurred(reply->errorString());
         }
@@ -85,7 +85,7 @@ void ApiService::fetchAirQualityIndex(int stationId) {
     });
 }
 
-void ApiService::handleStationsReply(QNetworkReply* reply) {
+void ApiService::handleStationsReply(QNetworkReply* reply, const QString& cityFilter) {
     QByteArray data = reply->readAll();
     QJsonDocument doc = QJsonDocument::fromJson(data);
 
@@ -94,6 +94,7 @@ void ApiService::handleStationsReply(QNetworkReply* reply) {
         return;
     }
 
+    const QString filterLower = cityFilter.trimmed().toLower();
     QJsonArray stationsArray = doc.array();
     std::vector<Station> stations;
 
@@ -116,6 +117,13 @@ void ApiService::handleStationsReply(QNetworkReply* reply) {
         station.city.provinceName = communeObj["provinceName"].toString().toStdString();
 
         station.addressStreet = obj["addressStreet"].toString().toStdString();
+
+        // 🔍 filtrujemy po nazwie miasta (jeśli coś wpisano)
+        if (!filterLower.isEmpty()) {
+            const QString stationCity = QString::fromStdString(station.city.name).toLower();
+            if (!stationCity.contains(filterLower))
+                continue; // pomiń jeśli nie pasuje
+        }
 
         stations.push_back(station);
     }
