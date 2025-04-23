@@ -7,7 +7,6 @@ Aplikacja desktopowa w Qt służąca do monitorowania jakości powietrza z wykor
 ## 📚 Spis treści
 
 - [📦 Funkcje aplikacji](#-funkcje-aplikacji)
-- [📸 Zrzuty ekranu](#-zrzuty-ekranu)
 - [🧠 Struktura projektu](#-struktura-projektu)
 - [💻 Technologie](#-technologie)
 - [📡 API](#-api)
@@ -31,14 +30,6 @@ Aplikacja desktopowa w Qt służąca do monitorowania jakości powietrza z wykor
 - Zapis danych do plików lokalnych (JSON)
 - Odczyt danych z lokalnej bazy
 - Obsługa pracy offline (fallback bez internetu)
-
----
-
-## 📸 Zrzuty ekranu
-
-| Lista stacji | Szczegóły stacji | Pomiary | Analiza |
-|--------------|------------------|---------|---------|
-| ![stations](screenshots/stations.png) | ![details](screenshots/details.png) | ![measurements](screenshots/measurements.png) | ![analysis](screenshots/analysis.png) |
 
 ---
 
