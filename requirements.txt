@@ -1,0 +1,16 @@
+# requirements.txt – Monitor Jakości Powietrza (Qt/C++)
+
+Wymagane komponenty:
+
+- Qt 5.15 lub wyższy (Widgets, Charts, Network)
+- Kompilator C++ z obsługą standardu C++17 (np. MSVC lub MinGW)
+- Qt Creator lub środowisko z obsługą plików .pro (qmake)
+- System operacyjny: MS Windows (testowane na Windows 10)
+
+Instrukcja uruchomienia:
+
+1. Otwórz Projekt_JPO.pro w Qt Creator
+2. Skonfiguruj zestaw narzędzi (kompilator + Qt)
+3. Zbuduj projekt i uruchom
+
+Obsługa offline wymaga wcześniejszego zapisania danych z API (do JSON).
