@@ -1,56 +1,140 @@
-# Monitor Jakości Powietrza – Projekt JPO 2024/2025
-Autor: Piotr Kozłowski
+# Monitor Jakości Powietrza – Qt C++ (GIOŚ API)
 
-<p align="center">
-  <img src="docs/screenshot_main.png" width="600" alt="Zrzut ekranu" />
-</p>
-
-## Spis treści
-1. [Opis projektu](#opis-projektu)  
-2. [Najważniejsze funkcje](#najważniejsze-funkcje)  
-3. [Wymagania](#wymagania)  
-4. [Instrukcja budowania i uruchamiania](#instrukcja-budowania-i-uruchamiania)  
-5. [Struktura katalogów](#struktura-katalogów)  
-6. [Testy jednostkowe](#testy-jednostkowe)  
-7. [Plany rozwoju](#plany-rozwoju)  
-8. [Licencja](#licencja)
+Aplikacja desktopowa w Qt służąca do monitorowania jakości powietrza z wykorzystaniem API Głównego Inspektoratu Ochrony Środowiska (GIOŚ).
 
 ---
 
-## Opis projektu
-Aplikacja desktopowa w C++ 17 (Qt 6) służąca do monitorowania i analizy jakości powietrza w Polsce.  
-Pobiera dane z publicznego REST API GIOŚ, prezentuje je na wykresie, umożliwia zapis do lokalnej bazy
-(JSON) oraz podstawową analizę statystyczną.
+## 📚 Spis treści
 
-## Najważniejsze funkcje
-- pobieranie listy stacji, czujników i pomiarów (asynchronicznie, w osobnych wątkach),
-- filtrowanie stacji po nazwie miasta,
-- wykres liniowy pomiarów (Qt Charts),
-- zapis/odczyt danych historycznych w formacie JSON,
-- analiza: min, max, średnia, trend,
-- tryb offline – automatyczne przejście na dane lokalne,
-- (prototyp) wyszukiwanie stacji w promieniu od wskazanego adresu.
+- [📦 Funkcje aplikacji](#-funkcje-aplikacji)
+- [📸 Zrzuty ekranu](#-zrzuty-ekranu)
+- [🧠 Struktura projektu](#-struktura-projektu)
+- [💻 Technologie](#-technologie)
+- [📡 API](#-api)
+- [🧪 Tryb offline](#-tryb-offline)
+- [🗂 Dane lokalne](#-dane-lokalne)
+- [🚀 Uruchomienie](#-uruchomienie)
+- [📂 Kompilacja z terminala](#-kompilacja-z-terminala)
+- [👨‍💻 Autor](#-autor)
+- [📝 Licencja](#-licencja)
 
-## Wymagania
-| Komponent | Wersja testowana |
-|-----------|------------------|
-| Qt SDK    | 6.7.x (Widgets, Network, Charts) |
-| Kompilator| MSVC 2022 / MinGW 13 lub gcc 11+ |
-| System    | Windows 10/11, Linux, macOS |
+---
 
-## Instrukcja budowania i uruchamiania
+## 📦 Funkcje aplikacji
+
+- Pobieranie listy stacji pomiarowych z GIOŚ
+- Wyszukiwanie stacji po nazwie miasta
+- Wyszukiwanie stacji w promieniu od lokalizacji (mock)
+- Wyświetlanie listy czujników (sensorów) dla danej stacji
+- Wyświetlanie pomiarów z wykresem (Qt Charts)
+- Analiza danych: min / max / średnia / trend
+- Zapis danych do plików lokalnych (JSON)
+- Odczyt danych z lokalnej bazy
+- Obsługa pracy offline (fallback bez internetu)
+
+---
+
+## 📸 Zrzuty ekranu
+
+| Lista stacji | Szczegóły stacji | Pomiary | Analiza |
+|--------------|------------------|---------|---------|
+| ![stations](screenshots/stations.png) | ![details](screenshots/details.png) | ![measurements](screenshots/measurements.png) | ![analysis](screenshots/analysis.png) |
+
+---
+
+## 🧠 Struktura projektu
+
+Pliki w projekcie są podzielone według odpowiedzialności:
+
+- `main.cpp` – punkt startowy aplikacji
+- `mainwindow.h/.cpp` – główne okno i logika aplikacji
+- `api/apiservice.h/.cpp` – pobieranie danych z API GIOŚ (Qt Network)
+- `data/station.h`, `sensor.h`, `measurement.h` – modele danych
+- `data/database.h/.cpp` – zapis i odczyt danych z lokalnej bazy (pliki JSON)
+- `analysis/dataanalysis.h/.cpp` – analiza danych (min/max/avg/trend)
+- `charts/chartwidget.h/.cpp` – wykresy Qt Charts
+- `logger/logger.h/.cpp` – prosty logger do konsoli
+- `Projekt_JPO.pro` – plik projektu Qt
+
+---
+
+## 💻 Technologie
+
+- Qt 5 (testowane na 5.15.2)
+- C++17
+- Qt Widgets
+- Qt Charts
+- Qt Network (API)
+- JSON (QJsonDocument)
+
+---
+
+## 📡 API
+
+Wykorzystywane API GIOŚ (https://api.gios.gov.pl/pjp-api/rest):
+- `GET /station/findAll` – pobieranie listy stacji
+- `GET /station/sensors/{id}` – sensory w danej stacji
+- `GET /data/getData/{sensorId}` – pomiary z czujnika
+- `GET /aqindex/getIndex/{stationId}` – indeks jakości powietrza
+
+---
+
+## 🧪 Tryb offline
+
+Jeśli aplikacja nie ma dostępu do internetu:
+- wyświetla pytanie o wczytanie danych z lokalnej bazy
+- jeśli są zapisane wcześniej pliki `.json`, dane są wczytywane lokalnie
+- użytkownik może dalej przeglądać wykresy, analizować dane itp.
+
+---
+
+## 🗂 Dane lokalne
+
+Lokalizacja plików na systemie użytkownika:
+- Windows: `%AppData%/Local/TwojaAplikacja/data/`
+- Linux/macOS: `~/.local/share/TwojaAplikacja/data/`
+
+Każdy sensor zapisuje dane w osobnym pliku np.:
+```
+sensor_14.json
+sensor_27.json
+```
+
+---
+
+## 🚀 Uruchomienie
+
+1. Otwórz `Projekt_JPO.pro` w Qt Creator
+2. Skonfiguruj Qt 5 + kompilator (np. MSVC lub MinGW)
+3. Kliknij zielony trójkąt (Run)
+4. Program uruchomi się automatycznie i pobierze dane
+
+---
+
+## 📂 Kompilacja z terminala
+
+Linux/macOS:
 ```bash
-# 1. klon repozytorium
-git clone https://github.com/użytkownik/Projekt_JPO.git
-cd Projekt_JPO
-
-# 2. budowa (qmake + MSVC)
 qmake Projekt_JPO.pro
-nmake            # lub mingw32-make / make
+make
+./Projekt_JPO
+```
 
-# 3. uruchomienie
-./release/MonitorJakosciPowietrza.exe   # Windows
-./MonitorJakosciPowietrza               # Linux/macOS
+Windows (MinGW):
+```bash
+qmake Projekt_JPO.pro
+mingw32-make
+Projekt_JPO.exe
+```
 
-# 4. (Windows) opcjonalne spakowanie DLL:
-windeployqt --release release/MonitorJakosciPowietrza.exe
+---
+
+## 👨‍💻 Autor
+**Autor:** *Piotr Kozłowski*  
+**Semestr:** *letni 2024/2025*
+
+---
+
+## 📝 Licencja
+
+Projekt edukacyjny – tylko do celów naukowych i zaliczeniowych.
