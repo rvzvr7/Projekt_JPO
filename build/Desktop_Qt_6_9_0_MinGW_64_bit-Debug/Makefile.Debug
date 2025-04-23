@@ -70,7 +70,8 @@ OBJECTS       = debug/dataanalysis.o \
 		debug/moc_chartwidget.o \
 		debug/moc_mainwindow.o
 
-DIST          = readme.md ..\..\analysis\dataanalysis.h \
+DIST          = readme.txt \
+		requirements.txt ..\..\analysis\dataanalysis.h \
 		..\..\api\apiservice.h \
 		..\..\charts\chartwidget.h \
 		..\..\data\database.h \
